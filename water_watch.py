@@ -17,7 +17,8 @@ print (green)
 count= 0 
 for pixel in im.getdata():
     count+=1
-print(count) 
+print(count)
+print(green/count*100)
 
 
 # In[ ]:
