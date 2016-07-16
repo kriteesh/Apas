@@ -5,7 +5,12 @@
 # In[24]:
 
 from PIL import Image
-im = Image.open("C:/Users/Krit/Downloads/coimbatorewater.png")
+import requests
+from io import BytesIO
+
+response = requests.get('http://maps.googleapis.com/maps/api/staticmap?maptype=terrain&size=512x512&zoom=13&center=Delhi&style=feature:water%7Celement:geometry%7Ccolor:0x00ff00%7Cweight:1%7Cvisibility:on&key=AIzaSyBozbn-Zw4R628oOwLB3wfeBvMln8p4ozk')
+im = Image.open(BytesIO(response.content))
+
 rgb_im = im.convert('RGB')
 green=0
 for x in range(1,512):
