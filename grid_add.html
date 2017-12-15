@@ -9,13 +9,25 @@
     <script type="text/javascript" src="js/digitdemo.js"></script>
     <script type="text/javascript" src="json/mnist_trained.json"></script>
   <style type="text/css">
- html, body {margin: 0; height: 100%; overflow: hidden}
+ html, body {margin: 0; height: 100%; overflow: hidden; -webkit-user-select: none; /* Safari */        
+-moz-user-select: none; /* Firefox */
+-ms-user-select: none; /* IE10+/Edge */
+user-select: none; /* Standard */}
+@font-face {
+    font-family: letters;
+    src: url(css/OldEnglishFive.ttf);
+}
+html{
+	background: url("https://vignette.wikia.nocookie.net/assassinscreed/images/8/8b/Old_paper.jpg/revision/latest?cb=20120728131604");
+	font-family : letters;
+	font-weight: bold;
+}
 
   	.grid {
     margin: auto;
     
     width: 80vw;
-    max-width: 90vh;
+    max-width: 100vh;
     /*height: 80vw;
     max-height: 60vh;*/
     font-size: 2.0rem;
@@ -49,7 +61,7 @@
 	border-bottom : 2px solid black;
 
 }
-@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: potrait) {
+/*@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: potrait) {
   html {
     transform: rotate(-90deg);
     transform-origin: left top;
@@ -59,6 +71,46 @@
     top: 100%;
     left: 0;
   }
+}*/
+
+html { display:block; }
+
+@media only screen and (orientation:portrait){
+
+  html {
+
+    height: 100vw;
+
+    -webkit-transform: rotate(90deg);
+
+    -moz-transform: rotate(90deg);
+
+    -o-transform: rotate(90deg);
+
+    -ms-transform: rotate(90deg);
+
+    transform: rotate(90deg);
+
+  }
+
+}
+
+@media only screen and (orientation:landscape){
+
+  html{
+
+     -webkit-transform: rotate(0deg);
+
+     -moz-transform: rotate(0deg);
+
+     -o-transform: rotate(0deg);
+
+     -ms-transform: rotate(0deg);
+
+     transform: rotate(0deg);
+
+  }
+
 }
 
 
@@ -189,8 +241,8 @@
 
 				var canvas = document.createElement('canvas');
 				canvas.id     = "cell" + i ;
-				canvas.width  = canWidth -5 ;
-				canvas.height = canHeight - 5;
+				canvas.width  = canWidth -1 ;
+				canvas.height = canHeight - 1;
 				canvas.style.position = "absolute";
 				// canvas.style.border   = "1px dashed";
 				divInner.appendChild(canvas);
@@ -223,10 +275,12 @@
 
 				var canvas = document.createElement('canvas');
 				canvas.id     = "carryCell" + i ;
-				canvas.width  = canWidth -5 ;
-				canvas.height = canHeight - 5;
+				canvas.width  = canWidth*(0.95) ;
+				canvas.height = canHeight*(0.95);
 				canvas.style.position = "absolute";
-				// if(carryStr[i]!=0) canvas.style.border   = "0.5px dashed";
+				var cantop  = canvas.height*0.2;
+				canvas.style.top = cantop + 'px';
+				if(carryStr[i]!=0) canvas.style.border   = "1px dashed";
 
 				divInner.appendChild(canvas);
 				divOut.appendChild(divInner);
