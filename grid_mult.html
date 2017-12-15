@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/mathutils.js"></script>
+    <!-- <script type="text/javascript" src="http://www.denseinl2.com/webcnn/mnist_digit_labels.js"></script> -->
+    <script type="text/javascript" src="js/webcnn.js"></script>
+    <script type="text/javascript" src="js/digitdemo.js"></script>
+    <script type="text/javascript" src="json/cnn_mnist_10_20_98accuracy.json"></script>
+<!--   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+  <style type="text/css">
+  	.grid {
+    margin: 0 auto;
+    width: 80vw;
+    max-width: 60vh;
+    height: 80vw;
+    max-height: 60vh;
+    font-size: 2.3rem;
+}
+.row {
+    display: flex;
+}
+.box {
+    /*background: tomato;
+    margin: 1px;
+*/    color: black;
+    font-weight: bold;
+    flex: 1 0 auto;
+    position: relative;
+}
+.box:after {
+    content: "";
+    float:left;
+    display: block;
+    padding-top: 100%;
+}
+.box .inner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.what{
+	border-top : 2px solid black;
+	border-bottom : 2px solid black;
+
+}
+
+/*#reset{
+	padding : 5px;
+	width : 200px;
+	height : 50px;
+	background : #9ec956;
+	font-size : 2.3rem;
+	text-align: center;
+	vertical-align: middle;
+}*/
+  </style>
+
+</head>
+
+<body>
+<!-- <div id="reset" >Reset</div> -->
+</body>
+<script>
+// $("#reset").hide();
+
+	    var numArr = [getRandomInt(100,99999),getRandomInt(100,999)];
+
+	    numArr = numArr.sort((a, b) => a - b);
+	    numArr.reverse();
+	    var numStr=[];
+	    var ansArr =[];
+	 	numStr[0] = numArr[0].toString().split("");
+	 	numStr[1] = numArr[1].toString().split("");
+
+	 	for(var i=0; i<=numStr[1].length-1;i++)
+	 	{ 
+	 		if(numStr[1][i]!=0)
+	 		{
+	 			ansArr[i] = parseInt(numStr[1][i])*numArr[0];
+	 			ansArr[i] = ansArr[i].toString().split("");
+	 		}
+	 		else 
+	 		{
+	 			ansArr[i] = Math.pow(10,numStr[0].length);
+	 			ansArr[i] = ansArr[i].toString().split("");
+	 			ansArr[i] = ansArr[i].splice(1);
+	 		}
+	 		
+	 		for(var j=1; j<=numStr[1].length-1-i;j++)
+	 		{
+	 			ansArr[i].push("x");
+	 		}
+
+	 	}
+	 	ansArr.reverse();
+
+	 	ansArr.push((numArr[0]*numArr[1]).toString().split(""));
+
+	 	console.log(numArr);
+	 	console.log(numStr);
+	 	console.log(ansArr);
+	 	
+
+	 	var max_digits = ansArr[ansArr.length-1].length ;
+
+	 	for(var i=0;i<=ansArr.length-1;i++)
+	 	{
+	 		var diff = max_digits - ansArr[i].length;
+	 		for(var k=0; k<=diff-1 ; k++)
+	 		{
+	 			ansArr[i].unshift("");
+	 		}
+	 	}
+
+	 	for(var i=0;i<=numStr.length-1;i++)
+	 	{
+	 		var diff = max_digits - numStr[i].length;
+	 		for(var k=0; k<=diff-1 ; k++)
+	 		{
+	 			if((i==1)&& (k==diff-2))
+	 				numStr[i].unshift("x");
+	 			else
+	 			numStr[i].unshift("");
+	 		}
+	 	}
+
+
+
+	
+		var grid = document.createElement("div");
+		grid.className ='grid';
+		
+		var carryRow = document.createElement("div");
+		carryRow.className = 'row';
+		grid.appendChild(carryRow);
+
+
+		for(var i=0; i<=numStr.length-1; i++)
+		{   
+			var numRow = document.createElement("div");
+			numRow.className = 'row';
+
+			for(var j =0; j<=max_digits-1; j++)
+			{
+				var divOut = document.createElement("div");
+				divOut.className = 'box';
+				var divInner = document.createElement("div");
+				divInner.className ='inner';
+				var val = document.createTextNode(numStr[i][j]);
+                divInner.appendChild(val);
+                divOut.appendChild(divInner);
+	            numRow.appendChild(divOut);
+			}
+        grid.appendChild(numRow);
+			
+		}
+       
+       for(var j=0; j<=ansArr.length-1;j++)
+       {
+
+       	var ansRow = document.createElement("div");
+		ansRow.className = 'row';
+		grid.appendChild(ansRow);
+		document.body.appendChild(grid);
+
+		for(var i=0; i<=max_digits-1;i++)
+		{
+				var divOut = document.createElement("div");
+				if((j==0)||(j==ansArr.length-1))
+				divOut.className = 'box what';
+				else 
+				divOut.className = 'box';
+				var divInner = document.createElement("div");
+				divInner.className ='inner';
+				var canWidth = document.getElementsByClassName("inner")[0].clientWidth;
+				var canHeight = document.getElementsByClassName("inner")[0].clientHeight;
+
+				var canvas = document.createElement('canvas');
+				canvas.id     = "cell" + j + " " + i;
+				canvas.width  = canWidth -5 ;
+				canvas.height = canHeight - 5;
+				canvas.style.position = "absolute";
+				if( ansArr[j][i]!="")
+				canvas.style.border   = "1px dashed";
+				divInner.appendChild(canvas);
+				divOut.appendChild(divInner);
+	            ansRow.appendChild(divOut);
+
+	    }
+
+	}
+
+		
+			for(var i=0; i<=ansArr.length-1;i++)
+			{
+    			
+    		for(var j=0; j<=ansArr[i].length-1;j++)
+    		{
+    			if( ansArr[i][j]!="")
+               total("cell" + i + " " + j, ansArr[i][j]);
+    		}   
+			}
+		
+
+
+		// for(var i=0; i<=max_digits;i++)
+		// {
+		// 		var divOut = document.createElement("div");
+		// 		divOut.className = 'box';
+		// 		var divInner = document.createElement("div");
+		// 		divInner.className ='inner';
+		// 		// var canWidth = document.getElementsByClassName("inner")[0].clientWidth;
+		// 		// var canHeight = document.getElementsByClassName("inner")[0].clientHeight;
+
+		// 		var canvas = document.createElement('canvas');
+		// 		canvas.id     = "borrCell" + i ;
+		// 		canvas.width  = canWidth -5 ;
+		// 		canvas.height = canHeight - 5;
+		// 		canvas.style.position = "absolute";
+		// 		// if(carryStr[i]!=0) canvas.style.border   = "0.5px dashed";
+
+		// 		divInner.appendChild(canvas);
+		// 		divOut.appendChild(divInner);
+	 //            carryRow.appendChild(divOut);
+            
+
+		// }
+	
+		// for(var i=0; i<=max_digits;i++)
+		// {
+		// 	if(borrowStat[i]!=0)
+		// 	{
+		// 		if(numArr[0][i]==0) total("borrCell"+ i,9);
+		// 		else total("borrCell"+ i,numArr[0][i] - 1);
+
+		// 	} 
+		// }
+
+
+
+
+
+</script>
+</html>
