@@ -6,13 +6,50 @@ let drawCanvas;
 let ctx_draw;
 let drawing = false;
 let lastPos;
-let lineWidth = 5;
+let lineWidth = 7;
 let drawingPathIndex = -1;
 let drawingDotsIndex = 0;
 let drawingPaths = [];
 let drawingDots = [];
 const TAU = Math.PI * 2;
 let freshCanvas = true;
+
+// // ctx.lineWidth = 1;
+// ctx.lineJoin = ctx.lineCap = 'round';
+// ctx.strokeStyle = 'purple';
+
+// var isDrawing, lastPoint;
+
+// el.onmousedown = function(e) {
+//   isDrawing = true;
+//   lastPoint = { x: e.clientX, y: e.clientY };
+// };
+
+// el.onmousemove = function(e) {
+//   if (!isDrawing) return;
+
+//   ctx.beginPath();
+  
+//   ctx.moveTo(lastPoint.x - getRandomInt(0, 2), lastPoint.y - getRandomInt(0, 2));
+//   ctx.lineTo(e.clientX - getRandomInt(0, 2), e.clientY - getRandomInt(0, 2));
+//   ctx.stroke();
+  
+//   ctx.moveTo(lastPoint.x, lastPoint.y);
+//   ctx.lineTo(e.clientX, e.clientY);
+//   ctx.stroke();
+  
+//   ctx.moveTo(lastPoint.x + getRandomInt(0, 2), lastPoint.y + getRandomInt(0, 2));
+//   ctx.lineTo(e.clientX + getRandomInt(0, 2), e.clientY + getRandomInt(0, 2));
+//   ctx.stroke();
+    
+//   lastPoint = { x: e.clientX, y: e.clientY };
+// };
+
+// el.onmouseup = function() {
+//   isDrawing = false;
+// };
+
+
 Init(id);
 
 function Init(id)
@@ -88,7 +125,7 @@ function resetDrawingCanvas()
 	drawingDotsIndex = 0;
 	drawingDots = [];
 	freshCanvas = true;
-	ctx_draw.fillStyle = "white";
+	ctx_draw.fillStyle = "transparent";
 	ctx_draw.fillRect( 0, 0, drawCanvas.width, drawCanvas.height );
 	ctx_draw.fillStyle = "rgb(200,200,200)";
 	ctx_draw.font = "22px Verdana";
@@ -389,7 +426,7 @@ function guessNumber(id)
 	}
 	//console.log("Is it a "+guess+" ? ("+Math.floor( 1000 * max ) / 10.0 + "%");
   
-  if((max > 0.5))
+  if((max > 0.67))
   {
   if((guess==ans))
   { 
@@ -405,7 +442,7 @@ function guessNumber(id)
 	// $("#reset").show();
  
   }
-  console.log(id + String(guess));
+  console.log(id + " " +  String(guess));
 }
 	// document.getElementById("guessNumberDiv").innerHTML = ( max > 0.666667 ) ? String( guess ) : "?";
 	// document.getElementById("confidence").innerHTML = String( Math.min( 100, Math.floor( 1000 * ( max + 0.1 ) ) / 10.0 ) ) + "% it's a "+String( guess );
