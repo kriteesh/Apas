@@ -122,6 +122,15 @@ html{
 <body>
 </body>
 <script>
+window.addEventListener("load",function() {
+	// Set a timeout...
+	setTimeout(function(){
+		// Hide the address bar!
+		window.scrollTo(0, 1);
+	}, 0);
+});
+</script>
+<script>
 
 
 	    var numArr = [getRandomInt(100,99999),getRandomInt(100,99999),getRandomInt(100,99999)];
