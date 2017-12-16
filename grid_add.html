@@ -18,7 +18,8 @@ user-select: none; /* Standard */}
     src: url(css/OldEnglishFive.ttf);
 }
 html{
-	background: url("https://vignette.wikia.nocookie.net/assassinscreed/images/8/8b/Old_paper.jpg/revision/latest?cb=20120728131604");
+	background-image: url("https://vignette.wikia.nocookie.net/assassinscreed/images/8/8b/Old_paper.jpg/revision/latest?cb=20120728131604"); 
+	background-repeat : no-repeat;
 	font-family : letters;
 	font-weight: bold;
 }
@@ -27,10 +28,10 @@ html{
     margin: auto;
     
     width: 80vw;
-    max-width: 100vh;
+    max-width: 93vh;
     /*height: 80vw;
     max-height: 60vh;*/
-    font-size: 2.0rem;
+    font-size: 1.2rem;
 }
 .row {
     display: flex;
@@ -61,7 +62,7 @@ html{
 	border-bottom : 2px solid black;
 
 }
-/*@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: potrait) {
+@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: potrait) {
   html {
     transform: rotate(-90deg);
     transform-origin: left top;
@@ -71,9 +72,9 @@ html{
     top: 100%;
     left: 0;
   }
-}*/
+}
 
-html { display:block; }
+/*html { display:block; }
 
 @media only screen and (orientation:portrait){
 
@@ -111,7 +112,7 @@ html { display:block; }
 
   }
 
-}
+}*/
 
 
   </style>
@@ -241,8 +242,8 @@ html { display:block; }
 
 				var canvas = document.createElement('canvas');
 				canvas.id     = "cell" + i ;
-				canvas.width  = canWidth -1 ;
-				canvas.height = canHeight - 1;
+				canvas.width  = canWidth*(0.95) ;
+				canvas.height = canHeight*(0.95) ;
 				canvas.style.position = "absolute";
 				// canvas.style.border   = "1px dashed";
 				divInner.appendChild(canvas);
@@ -278,9 +279,9 @@ html { display:block; }
 				canvas.width  = canWidth*(0.95) ;
 				canvas.height = canHeight*(0.95);
 				canvas.style.position = "absolute";
-				var cantop  = canvas.height*0.2;
+				var cantop  = canvas.height*0.25;
 				canvas.style.top = cantop + 'px';
-				if(carryStr[i]!=0) canvas.style.border   = "1px dashed";
+				// if(carryStr[i]!=0) canvas.style.border   = "1px dashed";
 
 				divInner.appendChild(canvas);
 				divOut.appendChild(divInner);
