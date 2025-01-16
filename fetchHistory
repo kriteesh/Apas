@@ -1,0 +1,82 @@
+import logging
+import azure.functions as func
+import json
+import os
+from azure.data.tables import TableServiceClient
+
+# Replace this with your table name
+TABLE_NAME = "chatHistory"
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Processing an HTTP request to fetch chat history.')
+
+    try:
+        # Parse the JSON body
+        req_body = req.get_json()
+    except ValueError:
+        return func.HttpResponse(
+            json.dumps({"error": "Invalid JSON body."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Extract parameters
+    user_id = req_body.get("user_id")
+    session_id = req_body.get("session_id")
+
+    # Check for missing parameters
+    missing_params = []
+    for param in ["user_id", "session_id"]:
+        if not req_body.get(param):
+            missing_params.append(param)
+
+    if missing_params:
+        return func.HttpResponse(
+            json.dumps({"error": f"Missing parameters: {', '.join(missing_params)}"}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Calculate PartitionKey
+    partition_key = user_id[-3:]  # Last 3 digits of user_id
+
+    try:
+        # Connect to Azure Table
+        connection_string = os.getenv("AzureWebJobsStorage")
+        table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+        table_client = table_service.get_table_client(table_name=TABLE_NAME)
+
+        # Query the table for the given PartitionKey
+        filter_query = f"PartitionKey eq '{partition_key}'"
+        rows = table_client.query_entities(query_filter=filter_query)
+
+        # Organize data by session_id
+        chat_history = {}
+        for row in rows:
+            row_session_id = row.get("session_id")
+            query_id = row.get("RowKey")
+            query_txt = row.get("query_txt")
+            query_response = row.get("query_response")
+
+            if row_session_id not in chat_history:
+                chat_history[row_session_id] = []
+
+            chat_history[row_session_id].append({
+                "query_id": query_id,
+                "query_txt": query_txt,
+                "query_response": query_response
+            })
+
+        return func.HttpResponse(
+            json.dumps({"message": "Chat history fetched successfully.", "chat_history": chat_history}),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+    except Exception as e:
+        logging.error(f"Error accessing Azure Table: {e}")
+        return func.HttpResponse(
+            json.dumps({"error": "Failed to fetch chat history. Internal server error."}),
+            status_code=500,
+            mimetype="application/json"
+        )
