@@ -1,0 +1,100 @@
+import logging
+import azure.functions as func
+import json
+import uuid
+import os
+from azure.data.tables import TableServiceClient, UpdateMode
+
+# Replace this with your table name
+TABLE_NAME = "Recommendations"
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Processing an HTTP request for recommendations.')
+
+    try:
+        # Parse the JSON body
+        req_body = req.get_json()
+    except ValueError:
+        return func.HttpResponse(
+            json.dumps({"error": "Invalid JSON body."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Extract parameters
+    user_id = req_body.get("user_id")
+    session_id = req_body.get("session_id")
+    policy_type = req_body.get("policy_type")
+    age_of_oldest = req_body.get("age_of_oldest")
+    no_of_kids = req_body.get("no_of_kids")
+    no_of_adults = req_body.get("no_of_adults")
+    pincode = req_body.get("pincode")
+    family_income = req_body.get("family_income")
+    ped_lifestyle = req_body.get("ped_lifestyle")
+    ped_non_lifestyle = req_body.get("ped_non_lifestyle")
+
+    # Check for missing parameters
+    missing_params = []
+    for param in ["user_id", "session_id", "policy_type", "age_of_oldest", "no_of_kids", "no_of_adults", "pincode", "family_income", "ped_lifestyle", "ped_non_lifestyle"]:
+        if not req_body.get(param):
+            missing_params.append(param)
+
+    if missing_params:
+        return func.HttpResponse(
+            json.dumps({"error": f"Missing parameters: {', '.join(missing_params)}"}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Generate a recommendation ID
+    recommendation_id = str(uuid.uuid4())
+
+    # Dummy logic to generate recommendations
+    recommendations = {
+        "cover_1": {"cover": "abc", "cover_justification": "xyz", "buy_guide": "buy it from website"},
+        "cover_2": {"cover": "def", "cover_justification": "uvw", "buy_guide": "consult an agent"}
+    }
+
+    # Calculate PartitionKey
+    partition_key = user_id[-3:]  # Last 3 digits of user_id
+
+    # Connect to Azure Table
+    try:
+        connection_string = os.getenv("AzureWebJobsStorage")
+        table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+        table_client = table_service.get_table_client(table_name=TABLE_NAME)
+
+        # Define the entity
+        entity = {
+            "PartitionKey": partition_key,
+            "RowKey": recommendation_id,
+            "user_id": user_id,
+            "session_id": session_id,
+            "policy_type": policy_type,
+            "age_of_oldest": age_of_oldest,
+            "no_of_kids": no_of_kids,
+            "no_of_adults": no_of_adults,
+            "pincode": pincode,
+            "family_income": family_income,
+            "ped_lifestyle": ped_lifestyle,
+            "ped_non_lifestyle": ped_non_lifestyle,
+            "recommendations": json.dumps(recommendations)  # Store the recommendations as JSON string
+        }
+
+        # Insert or update the entity
+        table_client.upsert_entity(entity=entity, mode=UpdateMode.MERGE)
+        logging.info(f"Entity with RowKey: {recommendation_id} has been written to the table.")
+
+        return func.HttpResponse(
+            json.dumps({"message": "Response has been stored successfully.", "recommendations": recommendations}),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+    except Exception as e:
+        logging.error(f"Error accessing Azure Table: {e}")
+        return func.HttpResponse(
+            json.dumps({"error": "Failed to save recommendations. Internal server error."}),
+            status_code=500,
+            mimetype="application/json"
+        )
