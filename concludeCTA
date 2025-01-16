@@ -1,0 +1,89 @@
+import logging
+import azure.functions as func
+import json
+from azure.data.tables import TableServiceClient, UpdateMode
+
+# Replace this with your table name
+TABLE_NAME = "SessionLogs"
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Processing an HTTP request.')
+
+    try:
+        # Parse the JSON body
+        req_body = req.get_json()
+    except ValueError:
+        return func.HttpResponse(
+            json.dumps({"error": "Invalid JSON body."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Extract parameters
+    user_id = req_body.get("user_id")
+    session_id = req_body.get("session_id")
+    selected_pack = req_body.get("selected_pack")
+    opted_covers = req_body.get("opted_covers")
+
+    # Check for missing parameters
+    if not user_id:
+        return func.HttpResponse(
+            json.dumps({"error": "user_id parameter is not there."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+    if not session_id:
+        return func.HttpResponse(
+            json.dumps({"error": "session_id parameter is not there."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+    if not selected_pack:
+        return func.HttpResponse(
+            json.dumps({"error": "selected_pack parameter is not there."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+    if opted_covers is None:
+        return func.HttpResponse(
+            json.dumps({"error": "opted_covers parameter is not there."}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    # Calculate PartitionKey
+    partition_key = user_id[-3:]  # Last 3 digits of user_id
+
+    # Connect to Azure Table
+    try:
+        connection_string = "<YOUR_STORAGE_ACCOUNT_CONNECTION_STRING>"
+        table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+        table_client = table_service.get_table_client(table_name=TABLE_NAME)
+
+        # Define the entity
+        entity = {
+            "PartitionKey": partition_key,
+            "RowKey": session_id,
+            "user_id": user_id,
+            "selected_pack": selected_pack,
+            "opted_covers": json.dumps(opted_covers),  # Store list as JSON string
+            "session_status": "concluded"
+        }
+
+        # Insert or update the entity
+        table_client.upsert_entity(entity=entity, mode=UpdateMode.MERGE)
+        logging.info(f"Entity with RowKey: {session_id} has been written to the table.")
+
+        return func.HttpResponse(
+            json.dumps({"message": "Response has been stored successfully."}),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+    except Exception as e:
+        logging.error(f"Error accessing Azure Table: {e}")
+        return func.HttpResponse(
+            json.dumps({"error": "Failed to save session. Internal server error."}),
+            status_code=500,
+            mimetype="application/json"
+        )
