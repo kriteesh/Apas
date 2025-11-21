@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MCQ Quiz</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .question-box {
+        margin-bottom: 20px;
+    }
+
+    .option {
+        padding: 12px;
+        margin: 8px 0;
+        background: #f2f2f2;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .option:hover {
+        background: #e0e0e0;
+    }
+
+    .correct {
+        background: #b2f7b2 !important;
+    }
+
+    .wrong {
+        background: #ffb3b3 !important;
+    }
+
+    #next-btn {
+        margin-top: 20px;
+        padding: 12px;
+        width: 100%;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #next-btn:disabled {
+        background: gray;
+        cursor: default;
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 10px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<h2>MCQ Quiz</h2>
+<div id="quiz-container"></div>
+<button id="next-btn" disabled>Next</button>
+
+<script src="l14.js"></script>
+<script>
+let currentIndex = 0;
+let score = 0;
+
+const container = document.getElementById("quiz-container");
+const nextBtn = document.getElementById("next-btn");
+
+function renderQuestion() {
+    nextBtn.disabled = true;
+    container.innerHTML = "";
+
+    const q = QUESTIONS[currentIndex];
+
+    const div = document.createElement("div");
+    div.className = "question-box";
+
+    const qNum = document.createElement("h3");
+    qNum.textContent = currentIndex + 1 + "/" + QUESTIONS.length;
+    div.appendChild(qNum);
+    // Question
+    const qText = document.createElement("h3");
+    qText.textContent = q.question;
+    div.appendChild(qText);
+
+    // Options (dictionary → array of [key, value])
+    for (const [key, value] of Object.entries(q.options)) {
+        const opt = document.createElement("div");
+        opt.className = "option";
+        opt.innerHTML = `<b>${key}.</b> ${value}`;
+
+        opt.onclick = () => selectOption(opt, key, q.correct_answer);
+        div.appendChild(opt);
+    }
+
+    container.appendChild(div);
+}
+
+function selectOption(optionElement, chosenKey, correctKey) {
+    const options = document.querySelectorAll(".option");
+
+    options.forEach(o => o.style.pointerEvents = "none");
+
+    if (chosenKey === correctKey) {
+        optionElement.classList.add("correct");
+        score++;
+    } else {
+        optionElement.classList.add("wrong");
+        // highlight correct one
+        options.forEach(o => {
+            if (o.innerHTML.startsWith(`<b>${correctKey}.`)) {
+                o.classList.add("correct");
+            }
+        });
+    }
+
+    nextBtn.disabled = false;
+}
+
+nextBtn.onclick = () => {
+    currentIndex++;
+    if (currentIndex >= QUESTIONS.length) {
+        container.innerHTML = `<h2>Quiz Completed!</h2>
+                               <p>Your score: ${score} / ${QUESTIONS.length}</p>`;
+        nextBtn.style.display = "none";
+    } else {
+        renderQuestion();
+    }
+};
+
+renderQuestion();
+</script>
+
+</body>
+</html>
