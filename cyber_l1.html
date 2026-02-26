@@ -1,14 +1,15 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile PPTX Quiz</title>
     <style>
-        * {{ box-sizing: border-box; }}
+        * { box-sizing: border-box; }
         
-        body {{ 
+        body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
@@ -16,9 +17,9 @@
             margin: 0;
             background: #f0f2f5; 
             color: #1c1e21;
-        }}
+        }
 
-        #quiz-container, #final-screen {{ 
+        #quiz-container, #final-screen { 
             background: white; 
             padding: 20px; 
             border-radius: 12px; 
@@ -26,27 +27,27 @@
             max-width: 500px; /* Limits width on desktop, but 100% on mobile */
             margin-top: 20px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
-        }}
+        }
 
-        h3 {{ font-size: 1.2rem; line-height: 1.4; margin-top: 0; }}
+        h3 { font-size: 1.2rem; line-height: 1.4; margin-top: 0; }
 
-        .hidden {{ display: none !important; }}
+        .hidden { display: none !important; }
 
         /* Image Styling */
-        .img-wrapper {{
+        .img-wrapper {
             width: 100%;
             text-align: center;
             margin: 15px 0;
-        }}
-        img {{ 
+        }
+        img { 
             max-width: 100%; 
             height: auto; 
             border-radius: 8px; 
             border: 1px solid #ddd;
-        }}
+        }
 
         /* Option Buttons - Large for Thumb Tapping */
-        .option-btn {{ 
+        .option-btn { 
             display: block; 
             width: 100%; 
             margin: 10px 0; 
@@ -58,53 +59,53 @@
             background: #f7f8fa;
             font-size: 1rem;
             transition: all 0.2s;
-        }}
+        }
         
-        .option-btn:active {{ transform: scale(0.98); }}
+        .option-btn:active { transform: scale(0.98); }
 
-        .selected {{ background-color: #e7f3ff; border-color: #1877f2; }}
+        .selected { background-color: #e7f3ff; border-color: #1877f2; }
         
-        .correct {{ 
+        .correct { 
             background-color: #e7f3ef !important; 
             border-color: #28a745 !important; 
             color: #155724;
             font-weight: bold;
-        }}
+        }
 
         /* Control Buttons */
-        .controls {{ 
+        .controls { 
             margin-top: 25px; 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             gap: 15px; 
-        }}
+        }
 
-        button:not(.option-btn) {{
+        button:not(.option-btn) {
             padding: 12px;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-        }}
+        }
 
-        #submit-btn {{ background: #1877f2; color: white; }}
-        #submit-btn:disabled {{ background: #ccd0d5; color: #8a8d91; }}
+        #submit-btn { background: #1877f2; color: white; }
+        #submit-btn:disabled { background: #ccd0d5; color: #8a8d91; }
 
-        #next-btn {{ background: #42b72a; color: white; }}
-        #next-btn:disabled {{ background: #ccd0d5; color: #8a8d91; }}
+        #next-btn { background: #42b72a; color: white; }
+        #next-btn:disabled { background: #ccd0d5; color: #8a8d91; }
 
         /* Ticker & Explanation */
-        #ticker {{ 
+        #ticker { 
             margin-top: 25px; 
             font-size: 0.9rem; 
             text-align: center;
             color: #65676b;
             border-top: 1px solid #ebedf0; 
             padding-top: 15px; 
-        }}
+        }
 
-        #explanation {{ 
+        #explanation { 
             margin-top: 15px; 
             padding: 12px;
             background: #fff3cd;
@@ -112,9 +113,9 @@
             font-size: 0.95rem;
             line-height: 1.4;
             border-left: 4px solid #ffc107;
-        }}
+        }
 
-        #final-screen {{ text-align: center; padding: 40px 20px; }}
+        #final-screen { text-align: center; padding: 40px 20px; }
     </style>
 </head>
 <body>
