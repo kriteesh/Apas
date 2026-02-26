@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile PPTX Quiz</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; 
+            margin: 0;
+            background: #f0f2f5; 
+            color: #1c1e21;
+        }
+
+        #quiz-container, #final-screen { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 500px; /* Limits width on desktop, but 100% on mobile */
+            margin-top: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        }
+
+        h3 { font-size: 1.2rem; line-height: 1.4; margin-top: 0; }
+
+        .hidden { display: none !important; }
+
+        /* Image Styling */
+        .img-wrapper {
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
+            border: 1px solid #ddd;
+        }
+
+        /* Option Buttons - Large for Thumb Tapping */
+        .option-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 15px; /* Larger padding for mobile */
+            text-align: left; 
+            cursor: pointer; 
+            border: 2px solid #e4e6eb; 
+            border-radius: 8px; 
+            background: #f7f8fa;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .option-btn:active { transform: scale(0.98); }
+
+        .selected { background-color: #e7f3ff; border-color: #1877f2; }
+        
+        .correct { 
+            background-color: #e7f3ef !important; 
+            border-color: #28a745 !important; 
+            color: #155724;
+            font-weight: bold;
+        }
+
+        /* Control Buttons */
+        .controls { 
+            margin-top: 25px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        button:not(.option-btn) {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #submit-btn { background: #1877f2; color: white; }
+        #submit-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        #next-btn { background: #42b72a; color: white; }
+        #next-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        /* Ticker & Explanation */
+        #ticker { 
+            margin-top: 25px; 
+            font-size: 0.9rem; 
+            text-align: center;
+            color: #65676b;
+            border-top: 1px solid #ebedf0; 
+            padding-top: 15px; 
+        }
+
+        #explanation { 
+            margin-top: 15px; 
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-left: 4px solid #ffc107;
+        }
+
+        #final-screen { text-align: center; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="question-box">
+        <h3 id="q-text"></h3>
+        <img id="q-img" src="" class="hidden">
+        <div id="options-container"></div>
+    </div>
+    
+    <div class="controls">
+        <button id="submit-btn" disabled>Submit</button>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+
+    <div id="ticker"></div>
+    <div id="explanation" class="hidden"></div>
+</div>
+
+<div id="final-screen" class="hidden" style="text-align:center;">
+    <h1>Quiz Complete!</h1>
+    <h2 id="final-score"></h2>
+    <p>Thank you for participating.</p>
+</div>
+
+<script>
+    const quizData = [{"question": "What is the primary focus of the presentation?", "options": ["Satellite telemetry data preprocessing", "Traditional anomaly detection methods", "AI-based anomaly detection models", "Design rationale for satellite systems"], "correct": 0, "explanation": "The presentation covers various aspects of anomaly detection in the space domain, with a significant emphasis on AI-based models and their implementation, making it the primary focus.", "image": null}, {"question": "Which section discusses the challenges in preparing satellite telemetry data for analysis?", "options": ["Introduction", "Pre-Processing and Data Preparation Challenges", "The Complexity of Satellite Telemetry Data", "Results"], "correct": 1, "explanation": "The section titled 'Pre-Processing and Data Preparation Challenges' directly addresses the difficulties in preparing satellite telemetry data for analysis.", "image": null}, {"question": "What are anomalies in telemetry?", "options": ["Planned system maintenance activities", "Expected deviations from normal patterns", "Unexpected deviations from normal patterns", "Routine system checks"], "correct": 2, "explanation": "The slide defines anomalies as unexpected deviations from normal patterns.", "image": "slide_images\\l13\\slide_2.png"}, {"question": "Why is timely detection of anomalies important?", "options": ["To increase system complexity", "To delay corrective actions", "To diagnose faults and prevent escalation", "To ignore minor issues"], "correct": 2, "explanation": "The slide states that timely detection allows controllers to diagnose faults and take corrective action before failures escalate.", "image": "slide_images\\l13\\slide_2.png"}, {"question": "What are the types of anomalies in time-series telemetry?", "options": ["Point, collective, contextual", "Point, individual, contextual", "Point, abnormal, contextual", "Point, sequential, contextual"], "correct": 0, "explanation": "The slide explicitly mentions point anomalies (single-point outliers), collective anomalies (abnormal sequences), and contextual anomalies (values anomalous in a specific context) as the types of anomalies in time-series telemetry.", "image": null}, {"question": "Why is timely detection of anomalies in telemetry data important?", "options": ["To increase the amount of data collected", "To diagnose faults and take corrective action before failures escalate", "To reduce the complexity of the telemetry system", "To decrease the reliability of the spacecraft"], "correct": 1, "explanation": "The slide states that timely detection of anomalies enables operators to diagnose faults and take corrective action before failures escalate, ensuring the health of the spacecraft and the success of the mission.", "image": null}, {"question": "What is a key challenge in analyzing satellite telemetry data due to its complexity?", "options": ["The data is too large to process with modern computers.", "The data is highly coupled and high-dimensional with thousands of concurrent channels.", "The data is always in a stationary state, making it easy to analyze.", "The data lacks any useful information for machine learning."], "correct": 1, "explanation": "The slide explicitly mentions that modern spacecraft generate thousands of concurrent telemetry channels representing highly coupled, high-dimensional data, which is a major complexity.", "image": null}, {"question": "Why are static thresholds often ineffective for analyzing satellite telemetry data?", "options": ["Because the data is always in a stationary state.", "Because the data distribution changes drastically during different operational phases.", "Because the data is always nominal with no anomalies.", "Because the data is too complex to understand."], "correct": 1, "explanation": "The slide states that spacecraft undergo continuous 'concept drift' and operational phases alter the nominal data distribution, making static thresholds obsolete.", "image": null}, {"question": "What is a primary challenge in pre-processing and data preparation for anomaly detection in space missions?", "options": ["Sensor calibration", "Distinguishing hardware anomalies from transmission errors", "Data visualization", "Model selection"], "correct": 1, "explanation": "'Fake anomalies' caused by solar radiation, packet loss, or downlink noise make it difficult to differentiate between real hardware issues and transmission errors, as highlighted in the slide content.", "image": null}, {"question": "Which method is mentioned for addressing temporal alignment challenges caused by different sensor sampling rates?", "options": ["Data binning", "Dynamic Time Warping (DTW)", "Data smoothing", "Data aggregation"], "correct": 1, "explanation": "The slide explicitly mentions Dynamic Time Warping (DTW) as a method to handle temporal alignment issues arising from sensors sampling at different rates (e.g., ADCS sensors at 10 Hz vs. thermal sensors at 0.1 Hz).", "image": null}, {"question": "Which traditional anomaly detection method relies on predefined upper and lower bounds?", "options": ["Out-of-Limits (OOL) & Expert Systems", "History window", "Anomaly score", "Decision rule"], "correct": 0, "explanation": "Out-of-Limits (OOL) & Expert Systems are described as the industry standard that relies on predefined upper and lower bounds.", "image": "slide_images\\l13\\slide_7.png"}, {"question": "What is a limitation of traditional anomaly detection methods?", "options": ["They are computationally expensive", "They are not easily interpretable", "They frequently fail to capture contextual or collective anomalies", "They are not suitable for univariate channels"], "correct": 2, "explanation": "The slide states that traditional methods are limited to detecting point anomalies and often fail to capture contextual or collective anomalies.", "image": "slide_images\\l13\\slide_7.png"}, {"question": "Which shallow machine learning method maps data into a high-dimensional feature space to find a bounding hypersphere of 'normal' states?", "options": ["Support Vector Data Description (SVDD)", "One-Class SVMs", "ARIMA", "Expert Systems"], "correct": 0, "explanation": "The slide mentions that Support Vector Data Description (SVDD) and One-Class SVMs map data into a high-dimensional feature space to find a bounding hypersphere of 'normal' states, with SVDD being the first listed method.", "image": "slide_images\\l13\\slide_7.png"}, {"question": "Which of the following is NOT listed as a method under AI-Based Anomaly Detection Models and Architectures?", "options": ["Thresholding methods", "Deep Learning (DL) methods", "Supervised Learning (SL) methods", "Unsupervised Learning (UL) methods"], "correct": 2, "explanation": "The slide content mentions AI methods, ML methods (which include supervised and unsupervised learning implicitly), DL methods, and hybrid methods. However, 'Supervised Learning (SL) methods' is not explicitly listed as a separate category in the provided content.", "image": null}, {"question": "Which of the following combinations of architectures is mentioned in the slide content?", "options": ["CNN + LSTM", "Transformer + KNN", "SVM + RNN", "PCA + KPA"], "correct": 0, "explanation": "The slide explicitly mentions 'CNNs & RNNs: CNN + LSTM' as one of the architectures. The other options combine techniques not mentioned together in the content.", "image": null}, {"question": "Which step in the implementation flow involves reducing the dimensionality of the data or modeling temporal dependencies?", "options": ["Windowing", "PCA/KF/ARIMA", "Threshold", "Digital Twin"], "correct": 1, "explanation": "PCA (Principal Component Analysis), KF (Kalman Filter), and ARIMA (Autoregressive Integrated Moving Average) are techniques used for dimensionality reduction or modeling temporal dependencies in time series data.", "image": null}, {"question": "What is the purpose of the 'Residual' component in the implementation flow?", "options": ["To encode the raw data", "To represent the difference between predicted and actual values", "To classify anomalies", "To store the digital twin"], "correct": 1, "explanation": "Residuals represent the difference between the predicted values and the actual observed values. This is crucial for anomaly detection as significant residuals indicate potential deviations from the expected behavior.", "image": null}, {"question": "What is the primary function of LSTMs/RNNs in anomaly detection for telemetry data?", "options": ["To compress the data into a lower-dimensional latent space", "To learn the temporal dynamics of the telemetry and flag anomalies based on forecast residuals", "To reconstruct the telemetry data after compression", "To introduce probabilistic regularization to the latent space"], "correct": 1, "explanation": "LSTMs/RNNs are forecasting models that learn the temporal patterns in telemetry data. Anomalies are detected when the difference between the predicted and actual telemetry values is too large.", "image": null}, {"question": "How do Variational Autoencoders (VAEs) improve upon standard Autoencoders in the context of anomaly detection?", "options": ["By using a lower-dimensional latent space", "By introducing probabilistic regularization to handle noise in the data", "By compressing data more efficiently", "By directly calculating reconstruction error"], "correct": 1, "explanation": "VAEs enhance Autoencoders by adding probabilistic regularization to the latent space, which makes them more robust to noise inherent in spaceflight telemetry, leading to better anomaly detection performance.", "image": null}, {"question": "What does the notation es={es(t-h),..,es(t)} represent in the context of the NPDT-LSTM Methodology?", "options": ["Exponentially weighted Average smoothed errors", "Prediction errors", "Smoothed errors at different time steps", "Threshold candidates"], "correct": 0, "explanation": "The notation represents the exponentially weighted Average smoothed errors over a range of time steps from t-h to t.", "image": "slide_images\\l13\\slide_16.png"}, {"question": "What are the three main steps in the NPDT-LSTM Methodology?", "options": ["Prediction, Errors & Smoothed Errors, Thresholds Candidates", "Data Preprocessing, Model Training, Model Evaluation", "Initialization, Forward Propagation, Backward Propagation", "Smoothed Errors Calculation, Prediction, Threshold Determination"], "correct": 0, "explanation": "The methodology consists of three steps: Prediction, Errors & Smoothed Errors, and Thresholds Candidates.", "image": "slide_images\\l13\\slide_16.png"}, {"question": "What is the primary challenge that LSTMs face when handling spatial correlations in the context of spacecraft sensor data?", "options": ["They struggle with temporal dynamics", "They cannot model physical or logical dependencies", "They fail to capture cross-channel correlations", "They are computationally too expensive"], "correct": 2, "explanation": "The slide states that LSTMs handle temporal dynamics but struggle with spatial (cross-channel) correlations. This makes option C the correct answer.", "image": "slide_images\\l13\\slide_20.png"}, {"question": "How do Causality-Enhanced GNNs improve upon traditional GNNs in the context of spacecraft attitude adjustment?", "options": ["By introducing causal graphs to explicitly weight directional relationships", "By increasing the number of sensor nodes", "By using more complex mathematical representations", "By reducing the dimensionality of the sensor data"], "correct": 0, "explanation": "The slide mentions that recent SOTA approaches introduce causal graphs to explicitly weight directional relationships, such as the effect of attitude adjustment on reaction wheel current. This makes option A the correct answer.", "image": "slide_images\\l13\\slide_20.png"}, {"question": "What is a key advantage of using Transformers for telemetry data analysis compared to deep LSTMs?", "options": ["They are more computationally efficient", "They avoid vanishing gradient problems with long sequence lengths", "They require less training data", "They are better at handling categorical data"], "correct": 1, "explanation": "Transformers use self-attention to weigh the importance of all previous time steps simultaneously, which helps avoid the vanishing gradient problems that deep LSTMs face with long sequence lengths.", "image": null}, {"question": "What is a limitation of Anomaly Transformers in telemetry data analysis?", "options": ["They are only applicable to battery capacity fade anomalies", "They require significant compute power, limiting their use to edge-compute", "They are less accurate than traditional methods", "They are not suitable for detecting contextual anomalies"], "correct": 1, "explanation": "The text states that Transformers require significant compute power, restricting them primarily to ground-segment processing rather than edge-compute on the satellite.", "image": null}, {"question": "What is the primary purpose of Self-Supervised Learning (SSL) in the context of anomaly detection for satellite telemetry?", "options": ["To increase the amount of labeled anomaly data", "To reduce the reliance on labeled anomaly data by training models to predict missing data", "To improve the accuracy of labeled anomaly data", "To replace human experts in anomaly detection"], "correct": 1, "explanation": "SSL addresses the lack of labeled anomaly data by training models to predict missing parts of the telemetry data, reducing the need for extensive labeled datasets.", "image": null}, {"question": "What is a key capability demonstrated by Foundation Models for Time Series in the context of satellite anomaly detection?", "options": ["Requiring mission-specific training for each satellite", "Detecting only known anomalies within a single satellite's dataset", "Identifying faults in new satellite buses without prior mission-specific training", "Increasing the need for centralized data storage"], "correct": 2, "explanation": "Foundation Models for Time Series, like Foundation Auto-Encoders, are pre-trained on large, cross-domain datasets, enabling zero-shot anomaly detection in new satellites without mission-specific training.", "image": null}, {"question": "What is the main benefit of Constellation-Scale Federated Learning for proliferated Low Earth Orbit (pLEO) mega-constellations?", "options": ["Centralizing all raw telemetry data for analysis", "Enabling individual satellites to detect anomalies independently", "Allowing the entire constellation to learn from a single satellite's encounter with a novel anomaly without sharing raw data", "Increasing the storage requirements for telemetry data"], "correct": 2, "explanation": "Federated Learning allows satellites to train models locally and share only gradient updates, enabling the entire constellation to learn from a single satellite's experience without centralizing massive amounts of raw data.", "image": null}, {"question": "What was the time period of the training data used for the Satellite-A Momentum Wheel Anomaly detection model?", "options": ["1st July 2020 to 14th July 2020", "1st August 2020 to 14th August 2020", "15th August 2020 to 20th August 2020", "1st August 2020 to 20th August 2020"], "correct": 1, "explanation": "The training data specifically spanned from 1st August 2020 to 14th August 2020 as stated in the slide content.", "image": "slide_images\\l13\\slide_27.png"}, {"question": "Was the anomaly in the test data successfully identified by the algorithm?", "options": ["No, the algorithm missed the anomaly", "Yes, the algorithm identified the anomaly perfectly", "The test data contained no anomalies", "The algorithm flagged multiple anomalies"], "correct": 1, "explanation": "The slide explicitly mentions that 'The Algorithm was able to identify the anomaly perfectly' during the test period.", "image": "slide_images\\l13\\slide_27.png"}, {"question": "What was the time period of the telemetry data used for training the model in the Satellite-A reaction wheel anomaly analysis?", "options": ["1st July 2020 to 17th August 2020", "18th August 2020 to 31st August 2020", "1st June 2020 to 30th June 2020", "1st September 2020 to 30th September 2020"], "correct": 0, "explanation": "The training data for the model was explicitly stated as telemetry data from 1st July 2020 to 17th August 2020.", "image": "slide_images\\l13\\slide_28.png"}, {"question": "Which data range was used for testing the model in the Satellite-A reaction wheel anomaly analysis?", "options": ["1st July 2020 to 17th August 2020", "18th August 2020 to 31st August 2020", "1st June 2020 to 30th June 2020", "1st September 2020 to 30th September 2020"], "correct": 1, "explanation": "The test data range is clearly mentioned as 18th August to 31st August 2020.", "image": "slide_images\\l13\\slide_28.png"}, {"question": "What type of data is used for training the multi-channel algorithm in the Satellite-A SADA stuck anomaly case?", "options": ["Nominal telemetry data of SPSS and SADA angle of a single day", "Anomalous telemetry data of SPSS and SADA angle of a single day", "Nominal telemetry data of multiple days", "Anomalous telemetry data of multiple days"], "correct": 0, "explanation": "The slide explicitly states that the training data is the nominal telemetry data of SPSS and SADA angle of a single day.", "image": "slide_images\\l13\\slide_29.png"}, {"question": "How many anomalies were identified by the algorithm in the test conducted on anomalous SPSS data?", "options": ["One", "Two", "Three", "Four"], "correct": 2, "explanation": "The slide mentions that three anomalies were identified, but two are real and the third is a ground station correction. Thus, the algorithm identified three anomalies.", "image": "slide_images\\l13\\slide_29.png"}, {"question": "What are the main challenges faced in the clustering method for health monitoring?", "options": ["Noisy Data and Poor performance", "Few anomaly cases and Ground Truth not available", "Poor Performance in Multiple Dynamic state and Different Sampling delay", "Data segregation and Satellite State information addition"], "correct": 0, "explanation": "The slide explicitly mentions 'Noisy Data' and 'Poor performance' as problems faced in the clustering method.", "image": null}, {"question": "Which methodology was finalized for health monitoring?", "options": ["Only Statistical Clustering/Classification models", "Only NPDT-LSTM", "Only GAN-LSTM", "Data segregation, Satellite State information addition, Statistical Clustering/Classification models, NPDT-LSTM, and GAN-LSTM"], "correct": 3, "explanation": "The slide states that the finalized methodology includes Data segregation, Satellite State information addition, Statistical Clustering/Classification models, NPDT-LSTM, and GAN-LSTM.", "image": null}];
+    let currentIdx = 0;
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    const qText = document.getElementById('q-text');
+    const qImg = document.getElementById('q-img');
+    const optionsContainer = document.getElementById('options-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const ticker = document.getElementById('ticker');
+    const explanation = document.getElementById('explanation');
+
+    function loadQuestion() {
+        const q = quizData[currentIdx];
+        qText.innerText = q.question;
+        
+        if(q.image) {
+            qImg.src = q.image;
+            qImg.classList.remove('hidden');
+        } else {
+            qImg.classList.add('hidden');
+        }
+
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i);
+            optionsContainer.appendChild(btn);
+        });
+
+        explanation.classList.add('hidden');
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        updateTicker();
+    }
+
+    let selectedIdx = null;
+    function selectOption(idx) {
+        if (nextBtn.disabled === false) return; // Lock after submit
+        selectedIdx = idx;
+        submitBtn.disabled = false;
+        
+        // Visual feedback for selection
+        Array.from(optionsContainer.children).forEach((btn, i) => {
+            btn.style.background = (i === idx) ? '#e9ecef' : 'white';
+        });
+    }
+
+    submitBtn.onclick = () => {
+        const q = quizData[currentIdx];
+        const buttons = optionsContainer.children;
+        
+        // Requirement 5: Highlight correct in green
+        buttons[q.correct].classList.add('correct');
+        
+        if (selectedIdx === q.correct) {
+            correctCount++;
+        }
+        
+        answeredCount++;
+        explanation.innerText = "Explanation: " + q.explanation;
+        explanation.classList.remove('hidden');
+        
+        submitBtn.disabled = true;
+        nextBtn.disabled = false;
+        
+        if (currentIdx === quizData.length - 1) {
+            nextBtn.innerText = "Done";
+        }
+        updateTicker();
+    };
+
+    nextBtn.onclick = () => {
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            showFinal();
+        }
+    };
+
+    function updateTicker() {
+        ticker.innerText = `Correct: ${correctCount} / Answered: ${answeredCount} / Total: ${quizData.length}`;
+    }
+
+    function showFinal() {
+        document.getElementById('quiz-container').classList.add('hidden');
+        const final = document.getElementById('final-screen');
+        final.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `Your Score: ${correctCount} / ${quizData.length}`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
+    
