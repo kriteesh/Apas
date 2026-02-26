@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile PPTX Quiz</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; 
+            margin: 0;
+            background: #f0f2f5; 
+            color: #1c1e21;
+        }
+
+        #quiz-container, #final-screen { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 500px; /* Limits width on desktop, but 100% on mobile */
+            margin-top: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        }
+
+        h3 { font-size: 1.2rem; line-height: 1.4; margin-top: 0; }
+
+        .hidden { display: none !important; }
+
+        /* Image Styling */
+        .img-wrapper {
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
+            border: 1px solid #ddd;
+        }
+
+        /* Option Buttons - Large for Thumb Tapping */
+        .option-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 15px; /* Larger padding for mobile */
+            text-align: left; 
+            cursor: pointer; 
+            border: 2px solid #e4e6eb; 
+            border-radius: 8px; 
+            background: #f7f8fa;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .option-btn:active { transform: scale(0.98); }
+
+        .selected { background-color: #e7f3ff; border-color: #1877f2; }
+        
+        .correct { 
+            background-color: #e7f3ef !important; 
+            border-color: #28a745 !important; 
+            color: #155724;
+            font-weight: bold;
+        }
+
+        /* Control Buttons */
+        .controls { 
+            margin-top: 25px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        button:not(.option-btn) {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #submit-btn { background: #1877f2; color: white; }
+        #submit-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        #next-btn { background: #42b72a; color: white; }
+        #next-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        /* Ticker & Explanation */
+        #ticker { 
+            margin-top: 25px; 
+            font-size: 0.9rem; 
+            text-align: center;
+            color: #65676b;
+            border-top: 1px solid #ebedf0; 
+            padding-top: 15px; 
+        }
+
+        #explanation { 
+            margin-top: 15px; 
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-left: 4px solid #ffc107;
+        }
+
+        #final-screen { text-align: center; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="question-box">
+        <h3 id="q-text"></h3>
+        <img id="q-img" src="" class="hidden">
+        <div id="options-container"></div>
+    </div>
+    
+    <div class="controls">
+        <button id="submit-btn" disabled>Submit</button>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+
+    <div id="ticker"></div>
+    <div id="explanation" class="hidden"></div>
+</div>
+
+<div id="final-screen" class="hidden" style="text-align:center;">
+    <h1>Quiz Complete!</h1>
+    <h2 id="final-score"></h2>
+    <p>Thank you for participating.</p>
+</div>
+
+<script>
+    const quizData = [{"question": "What is the approximate number of satellites orbiting the Earth?", "options": ["10,000", "15,000", "18,000", "20,000"], "correct": 2, "explanation": "The slide states '~18,000 satellite orbiting the Earth'.", "image": null}, {"question": "Which of the following is NOT mentioned as a key application of space technology in the slide?", "options": ["Communication & Broadcasting", "Meteorology & Oceanography", "Search & Rescue, Disastar management", "Navigation"], "correct": 3, "explanation": "The slide lists Communication & Broadcasting, Earth Observation (which includes Remote Sensing, Cartography, and Surveillance), Navigation, Meteorology & Oceanography, and Search & Rescue, Disaster management. 'Disastar management' seems to be a typo and likely should be 'Disaster management'. However, 'Disastar' is used in the original slide content.", "image": null}, {"question": "What are the potential consequences of a satellite breach according to the slide?", "options": ["Only navigation failure", "Only financial network collapse", "Navigation failure, financial network collapse, and communication collapse in military", "None of the above"], "correct": 2, "explanation": "The slide explicitly mentions navigation failure, financial network collapse, and communication collapse in military as potential consequences of a satellite breach.", "image": null}, {"question": "What is the main concern regarding cyber attacks on satellites, according to the slide?", "options": ["The likelihood of a satellite being hacked", "The cost of repairing a satellite after a breach", "The timing and severity of a satellite hack", "The possibility of satellites being used for cyber attacks"], "correct": 2, "explanation": "The slide states that the question is not whether satellites will be hacked, but when and how devastating it will be, emphasizing the timing and severity of the potential impact.", "image": null}, {"question": "What is the primary definition of satellite hacking?", "options": ["Unauthorized access to satellite systems", "Manipulation of satellite communication links", "Disruption of ground-based control infrastructure", "All of the above"], "correct": 3, "explanation": "Satellite hacking encompasses unauthorized access, manipulation, or disruption of satellite systems, their communication links, and ground-based control infrastructure.", "image": null}, {"question": "Which of the following is NOT a key threat actor in satellite hacking?", "options": ["Cybercriminals", "State actors", "Hacktivists", "Insider threats"], "correct": 2, "explanation": "While cybercriminals, state actors, and insider threats are key threat actors, 'Hacktivists' are not explicitly mentioned as a key threat actor in the provided slide content.", "image": null}, {"question": "What are the main methods hackers use to target satellites?", "options": ["Only GPS Spoofing and Signal Jamming", "Attacking Ground Stations and Communication Links, Hijacking Satellite Control Systems, GPS Spoofing and Signal Jamming, and Data Interception and Payload Manipulation", "Only Data Interception and Payload Manipulation", "None of the above"], "correct": 1, "explanation": "The slide lists four primary methods: Attacking Ground Stations and Communication Links, Hijacking Satellite Control Systems, GPS Spoofing and Signal Jamming, and Data Interception and Payload Manipulation. Therefore, the correct answer encompasses all these methods.", "image": null}, {"question": "Why is detecting satellite hacking particularly challenging?", "options": ["Increased Telemetry Visibility", "Real-time Communication", "Easily Identifiable Anomalies", "Limited Telemetry Visibility, Delayed Communication, Mimicking Normal Behaviour, and Rules do not work in orbit"], "correct": 3, "explanation": "The slide explicitly mentions four reasons: Limited Telemetry Visibility, Delayed Communication, Mimicking Normal Behaviour, and Rules do not work in orbit. These factors collectively make detection difficult.", "image": null}, {"question": "Why do hackers often target systems that support satellites rather than the satellites themselves?", "options": ["Satellites are physically inaccessible", "Satellites are less technologically advanced", "The supporting systems are more vulnerable", "The supporting systems have less security"], "correct": 2, "explanation": "Hackers target supporting systems because they are often more vulnerable and easier to exploit than the satellites themselves, which are typically more secure and harder to access directly.", "image": null}, {"question": "What is the primary reason satellites are considered 'smart' and will become even smarter?", "options": ["Increased processing power", "Improved hardware capabilities", "Enhanced software functionality", "All of the above"], "correct": 3, "explanation": "Satellites are becoming smarter due to advancements in various areas including processing power, hardware, and software. The slide mentions 'More than patching software' and 'Secure-by-design' engineering, indicating a holistic approach to making satellites more intelligent and secure.", "image": null}, {"question": "Which of the following is NOT a processor-based sub-system listed in the spacecraft systems slide?", "options": ["Attitude & Orbit Control Electronics (AOCE)", "Telecommand Command Processing (TCP)", "Data Handling Systems (SSR etc.)", "Sensors (Gyro, AccMtr, ES, SS, Star Sensors)"], "correct": 3, "explanation": "Sensors are hardware components that provide measurements and do not necessarily involve processing like the other listed sub-systems.", "image": null}, {"question": "What is the primary function of the Telecommand Command Processing (TCP) system in a spacecraft?", "options": ["To process and execute commands received from ground stations", "To control the spacecraft's attitude and orbit", "To handle data storage and transmission", "To process sensor data for navigation"], "correct": 0, "explanation": "Telecommand Command Processing (TCP) is responsible for receiving, decoding, and executing commands sent from ground stations to the spacecraft.", "image": null}, {"question": "Which of the following is a key characteristic of an embedded real-time system as described in the slide?", "options": ["Optimized use of unlimited resources", "Irreparability due to inaccessibility after launch", "Guaranteed to meet all deadlines", "Always based on general-purpose operating systems"], "correct": 1, "explanation": "Irreparability due to inaccessibility after launch is explicitly mentioned as a characteristic of embedded real-time systems in the provided slide content. Optimized use of limited resources is also mentioned, but it's not one of the options here. The other options are either contradictory to the content or not mentioned.", "image": null}, {"question": "What type of systems/software require high integrity and are often considered mission-critical or safety-critical?", "options": ["General-purpose desktop applications", "Embedded real-time systems", "Web-based applications", "Operating systems for personal computers"], "correct": 1, "explanation": "The slide explicitly states that embedded real-time systems are characterized by being mission-critical, safety-critical, and requiring high integrity. The other options do not align with the characteristics described in the slide.", "image": null}, {"question": "What is a key principle of Zero Trust Architecture?", "options": ["Trust but verify", "Never trust, always verify", "Trust always, verify never", "Verify but don't trust"], "correct": 1, "explanation": "Zero Trust Architecture's core principle is 'Never Trust, Always Verify', meaning no implicit trust is granted to any user or device, regardless of location. All access requests must be verified.", "image": null}, {"question": "Which of the following is NOT mentioned as a Secure-by-Design component in the slide?", "options": ["Command Validation", "Secure boot process", "Hardware Security Modules (HSM)", "Multi-factor authentication"], "correct": 3, "explanation": "The slide explicitly mentions Command Validation, Secure boot process, and Hardware Security Modules (HSM). Multi-factor authentication is not listed as one of the components.", "image": null}, {"question": "What are the key components of 'Defense in Depth' as mentioned in the slide?", "options": ["Physical safeguards, Network segmentation, Multiple, diverse defenses", "Encrypted Communication, Authenticated command channels, Secure key management", "Redundant, layered control, Encrypted telemetry, Quantum resistant encryption", "Physical safeguards, Encrypted Communication, Secure key management, Quantum resistant encryption"], "correct": 0, "explanation": "The slide explicitly lists 'Redundant, layered control', 'Physical safeguard, Network segmentation', and 'Multiple, diverse defenses' as key components of 'Defense in Depth'.", "image": null}, {"question": "Which of the following is NOT a part of 'Defense in Depth'?", "options": ["Physical safeguards", "Network segmentation", "Multiple, diverse defenses", "Encrypted Communication"], "correct": 3, "explanation": "Encrypted Communication is mentioned under a separate category, not as part of 'Defense in Depth'. The other options are explicitly listed as components of 'Defense in Depth'.", "image": null}, {"question": "Which of the following is NOT a method mentioned for threat detection in the slide content?", "options": ["Behavioral analysis", "Pattern recognition", "Predictive modelling", "Automated incident response"], "correct": 3, "explanation": "While behavioral analysis, pattern recognition, and predictive modelling are explicitly listed as threat detection methods, automated incident response is presented as a separate, distinct process.", "image": null}, {"question": "Which cybersecurity standard is specifically mentioned as being adapted for the space sector, according to the slide content?", "options": ["ISO 27001", "NIST", "ESA/NASA standard", "PCI DSS"], "correct": 2, "explanation": "The slide explicitly states 'Cyber security standard \u2013 NIST adaption for space, ESA/NASA standard', indicating that the ESA/NASA standard is the one specifically adapted for space.", "image": null}, {"question": "Which of the following is NOT a measure for securing an On Board Computer?", "options": ["Restricting user access", "Multifactor authentication", "Segmenting network", "Usage of encryption"], "correct": 0, "explanation": "All options listed are measures for securing an On Board Computer. However, 'Restricting user access' is a general security measure and not specific to On Board Computers.", "image": null}, {"question": "What is the primary purpose of application whitelisting in the context of securing an On Board Computer?", "options": ["To prevent unauthorized access to the system", "To ensure only authorized and trustworthy components and software are used", "To protect the system from environmental damage", "To monitor system integrity and detect tampering"], "correct": 1, "explanation": "Application whitelisting is specifically used to authorize and trust only approved components and software, reducing the risk of malicious software execution.", "image": null}, {"question": "What are the main shortcomings of the Round-robin scheduling algorithm in software architecture?", "options": ["High complexity and non-deterministic behavior", "Scalability issues and fragility to code changes", "Long processing times and high manual intervention", "Non-deterministic and complex implementation"], "correct": 1, "explanation": "The slide explicitly mentions that Round-robin scheduling suffers from scalability issues and is fragile for code changes, along with other shortcomings like manual partitioning and increasing complexity.", "image": null}, {"question": "What is a key advantage of the Round-robin scheduling algorithm?", "options": ["High scalability and adaptability to code changes", "Deterministic behavior and simplicity", "Low complexity and manual scheduling", "Real-time processing capabilities"], "correct": 1, "explanation": "The slide states that Round-robin scheduling has the advantages of simplicity and deterministic behavior.", "image": null}, {"question": "Which of the following is NOT a method for securing an RTOS as mentioned in the slide?", "options": ["Hardware backed memory protection", "Formal security certification", "Dynamic memory allocation", "Secure boot"], "correct": 2, "explanation": "Dynamic memory allocation is not listed as a method for securing an RTOS in the provided slide content. The slide emphasizes hardware-based protections, architectural principles, and verification mechanisms.", "image": null}, {"question": "What does the slide suggest as a way to achieve spatial and temporal separation in an RTOS?", "options": ["Using an MMU", "Implementing a microkernel architecture", "Employing pointer data verification", "Formal security certification"], "correct": 0, "explanation": "The slide explicitly mentions 'Spatial & temporal separation \u2013 BPU/MPU, MMU' indicating that an MMU (Memory Management Unit) is a component used to achieve this separation.", "image": null}, {"question": "Which of the following is NOT a component of Firmware Integrity?", "options": ["Secure boot", "Encrypted updates", "Malware analysis", "Secure Lifecycle Management"], "correct": 2, "explanation": "Malware analysis is not listed as a component of Firmware Integrity in the provided slide content. The listed components include secure boot, encrypted updates, secure lifecycle management, memory safety, trusted firmware, hardware root of trust, runtime attestation, and supply chain risk.", "image": null}, {"question": "What is the purpose of a Hardware Root of Trust in Firmware Integrity?", "options": ["To encrypt all firmware code", "To securely store keys and isolate sensitive security operations", "To prevent buffer overflow", "To analyze malware"], "correct": 1, "explanation": "The Hardware Root of Trust, such as a TPM or Secure microcontroller, is used to securely store keys and isolate sensitive security operations, as stated in the slide content. The other options describe different aspects of firmware integrity but not the specific purpose of a Hardware Root of Trust.", "image": null}, {"question": "Which of the following is NOT a Secure & Safe Coding Practice mentioned in the slide content?", "options": ["Input data validation and sanitization", "Output encoding \u2013 TM & P/L data", "Error Handling & logging", "Deterministic Design"], "correct": 3, "explanation": "Deterministic Design is not explicitly listed as a Secure & Safe Coding Practice in the provided slide content. The other options are all mentioned as key practices.", "image": null}, {"question": "What is the primary focus of 'Security Verification' in the context of Secure & Safe Coding Practices?", "options": ["Testing the code structure for efficiency", "Identifying and fixing memory management issues", "Performing Static and Dynamic Security Testing", "Validating and sanitizing input data"], "correct": 2, "explanation": "The slide content explicitly states that Security Verification involves 'Static and Dynamic Security Testing', making option C the correct answer. The other options refer to different aspects of secure coding but not the primary focus of Security Verification.", "image": null}, {"question": "What is the first step in the SS Data Processing flow?", "options": ["Transform to SS Frame", "Latency Correction in SS Frame", "SS Data", "DTG Inc Angle"], "correct": 2, "explanation": "The SS Data is the initial input data that enters the processing flow before any transformations or corrections are applied.", "image": null}, {"question": "Which step involves correcting latency in the spacecraft (S/C) frame?", "options": ["Latency Correction in SS Frame", "Latency Correction in S/C Frame", "Transform SS Att to S/C Frame", "Residue Comptn & Corrtn"], "correct": 1, "explanation": "Latency Correction in S/C Frame specifically addresses latency issues within the spacecraft's frame of reference, distinct from corrections made in the SS frame.", "image": null}, {"question": "Which of the following is NOT a design principle mentioned in the slide content?", "options": ["Design for quick prototyping", "Decompose system into components", "Follow design rules", "Define component interfaces"], "correct": 3, "explanation": "The slide mentions 'Design for quick prototyping' as part of the Development Methodology, 'Decompose system into components' and 'Define component interfaces' as part of the Design Guidelines. 'Follow design rules' is also explicitly mentioned. However, 'Define component interfaces' is part of the Design Guidelines, not a separate design principle.", "image": null}, {"question": "What is the primary purpose of identifying opportunities for component reuse during the design phase?", "options": ["To reduce the overall complexity of the system", "To minimize the amount of new code that needs to be written", "To ensure that components can be easily tested", "To facilitate better communication between components"], "correct": 1, "explanation": "Identifying opportunities for component reuse aims to leverage existing components to avoid redundant development effort and promote efficiency. While reducing complexity and facilitating testing are also important design goals, they are not the primary focus of component reuse.", "image": null}, {"question": "Which of the following is the primary focus of Preliminary Design in the Macro Steps of design?", "options": ["Describing the real-world problem", "Decomposing the Requirement Specification into software subsystems (Components)", "Specifying components and estimating execution time", "Defining software integration aspects"], "correct": 1, "explanation": "Preliminary Design primarily involves decomposing the Requirement Specification into software subsystems (Components), as stated in the slide content.", "image": null}, {"question": "Which of the following activities is part of Detailed Design?", "options": ["Describing the real-world problem", "Decomposing the Requirement Specification into software subsystems (Components)", "Estimating the execution time and defining software integration aspects", "All of the above"], "correct": 2, "explanation": "Detailed Design includes specifying components, further decomposing subsystems, estimating execution time, and defining software integration aspects, as per the slide content. Option C accurately reflects these activities.", "image": null}, {"question": "Which of the following is a Level-B component of S/W Realization: Fault Tolerance & Autonomy?", "options": ["EDAC, FDI, LPD", "Gyro, SS, AccMtr FDIR, TFDL, RW (OSPL, ARC, Spurious On/Off handling), Memory Scrubbing, Memory consistency, SPDM, 1553-B FDIR, Reset, FDI, LPD Handling with EEPROM, Remote Programming", "Power Safety Logic", "Safe Mode"], "correct": 1, "explanation": "Level-B includes components like Gyro, SS, AccMtr FDIR, TFDL, RW (OSPL, ARC, Spurious On/Off handling), Memory Scrubbing, Memory consistency, SPDM, 1553-B FDIR, Reset, FDI, LPD Handling with EEPROM, Remote Programming. Level-A includes EDAC, FDI, LPD. Level-C is Power Safety Logic, and Level-D is Safe Mode.", "image": null}, {"question": "What is the purpose of the Master Recovery Sequencer (MRS) in the context of S/W Realization: Fault Tolerance & Autonomy?", "options": ["To handle power safety logic", "To manage the transition to Safe Mode", "To oversee and coordinate recovery processes", "To perform memory scrubbing and consistency checks"], "correct": 2, "explanation": "The Master Recovery Sequencer (MRS) is responsible for overseeing and coordinating the recovery processes. Power Safety Logic is Level-C, Safe Mode is Level-D, and memory scrubbing is part of Level-B.", "image": null}, {"question": "What is identified as the primary vulnerability in satellite communication systems according to the slide?", "options": ["Satellite systems themselves", "Ground stations", "Legacy satellite software", "Quantum-powered hackers"], "correct": 1, "explanation": "The slide explicitly states that ground stations are the weakest and most exploited entry points, making them the primary vulnerability.", "image": null}, {"question": "What is a major concern regarding the longevity of satellites mentioned in the slide?", "options": ["Short operational lifespan", "Long operational lifespan", "Frequent software updates", "Immunity to cyber threats"], "correct": 1, "explanation": "The slide highlights that the long life of satellites makes them vulnerable, specifically mentioning 'Legacy system/weak encryption' as a consequence.", "image": null}];
+    let currentIdx = 0;
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    const qText = document.getElementById('q-text');
+    const qImg = document.getElementById('q-img');
+    const optionsContainer = document.getElementById('options-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const ticker = document.getElementById('ticker');
+    const explanation = document.getElementById('explanation');
+
+    function loadQuestion() {
+        const q = quizData[currentIdx];
+        qText.innerText = q.question;
+        
+        if(q.image) {
+            qImg.src = q.image;
+            qImg.classList.remove('hidden');
+        } else {
+            qImg.classList.add('hidden');
+        }
+
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i);
+            optionsContainer.appendChild(btn);
+        });
+
+        explanation.classList.add('hidden');
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        updateTicker();
+    }
+
+    let selectedIdx = null;
+    function selectOption(idx) {
+        if (nextBtn.disabled === false) return; // Lock after submit
+        selectedIdx = idx;
+        submitBtn.disabled = false;
+        
+        // Visual feedback for selection
+        Array.from(optionsContainer.children).forEach((btn, i) => {
+            btn.style.background = (i === idx) ? '#e9ecef' : 'white';
+        });
+    }
+
+    submitBtn.onclick = () => {
+        const q = quizData[currentIdx];
+        const buttons = optionsContainer.children;
+        
+        // Requirement 5: Highlight correct in green
+        buttons[q.correct].classList.add('correct');
+        
+        if (selectedIdx === q.correct) {
+            correctCount++;
+        }
+        
+        answeredCount++;
+        explanation.innerText = "Explanation: " + q.explanation;
+        explanation.classList.remove('hidden');
+        
+        submitBtn.disabled = true;
+        nextBtn.disabled = false;
+        
+        if (currentIdx === quizData.length - 1) {
+            nextBtn.innerText = "Done";
+        }
+        updateTicker();
+    };
+
+    nextBtn.onclick = () => {
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            showFinal();
+        }
+    };
+
+    function updateTicker() {
+        ticker.innerText = `Correct: ${correctCount} / Answered: ${answeredCount} / Total: ${quizData.length}`;
+    }
+
+    function showFinal() {
+        document.getElementById('quiz-container').classList.add('hidden');
+        const final = document.getElementById('final-screen');
+        final.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `Your Score: ${correctCount} / ${quizData.length}`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
+    
