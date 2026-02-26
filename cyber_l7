@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile PPTX Quiz</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; 
+            margin: 0;
+            background: #f0f2f5; 
+            color: #1c1e21;
+        }
+
+        #quiz-container, #final-screen { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 500px; /* Limits width on desktop, but 100% on mobile */
+            margin-top: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        }
+
+        h3 { font-size: 1.2rem; line-height: 1.4; margin-top: 0; }
+
+        .hidden { display: none !important; }
+
+        /* Image Styling */
+        .img-wrapper {
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
+            border: 1px solid #ddd;
+        }
+
+        /* Option Buttons - Large for Thumb Tapping */
+        .option-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 15px; /* Larger padding for mobile */
+            text-align: left; 
+            cursor: pointer; 
+            border: 2px solid #e4e6eb; 
+            border-radius: 8px; 
+            background: #f7f8fa;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .option-btn:active { transform: scale(0.98); }
+
+        .selected { background-color: #e7f3ff; border-color: #1877f2; }
+        
+        .correct { 
+            background-color: #e7f3ef !important; 
+            border-color: #28a745 !important; 
+            color: #155724;
+            font-weight: bold;
+        }
+
+        /* Control Buttons */
+        .controls { 
+            margin-top: 25px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        button:not(.option-btn) {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #submit-btn { background: #1877f2; color: white; }
+        #submit-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        #next-btn { background: #42b72a; color: white; }
+        #next-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        /* Ticker & Explanation */
+        #ticker { 
+            margin-top: 25px; 
+            font-size: 0.9rem; 
+            text-align: center;
+            color: #65676b;
+            border-top: 1px solid #ebedf0; 
+            padding-top: 15px; 
+        }
+
+        #explanation { 
+            margin-top: 15px; 
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-left: 4px solid #ffc107;
+        }
+
+        #final-screen { text-align: center; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="question-box">
+        <h3 id="q-text"></h3>
+        <img id="q-img" src="" class="hidden">
+        <div id="options-container"></div>
+    </div>
+    
+    <div class="controls">
+        <button id="submit-btn" disabled>Submit</button>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+
+    <div id="ticker"></div>
+    <div id="explanation" class="hidden"></div>
+</div>
+
+<div id="final-screen" class="hidden" style="text-align:center;">
+    <h1>Quiz Complete!</h1>
+    <h2 id="final-score"></h2>
+    <p>Thank you for participating.</p>
+</div>
+
+<script>
+    const quizData = [{"question": "What does CCSDS stand for in the context of the Telecommand System?", "options": ["Consultative Committee for Space Data Systems", "Committee for Control and Security of Data Systems", "Consultative Committee for Space Communications", "Committee for Coordination of Space Data"], "correct": 0, "explanation": "CCSDS is an acronym for Consultative Committee for Space Data Systems, as explicitly mentioned in the slide content.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_5.png"}, {"question": "What is the name of the course related to the CCSDS Standard for Telecommand System mentioned in the slide?", "options": ["Secured Telecommand Link-IN-SPACe Short Term Skill Development Course", "Space Communications Security Training", "Telecommand Systems Workshop", "Advanced Space Data Systems Seminar"], "correct": 0, "explanation": "The slide explicitly mentions the 'Secured Telecommand Link-IN-SPACe Short Term Skill Development Course' as the course related to the CCSDS Standard for Telecommand System.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_5.png"}, {"question": "What is the primary function of the Telecommand Processor System described in the slide?", "options": ["Data encryption and secure communication", "Distribution of commands over the Mil1553 bus to different subsystems", "Real-time monitoring of subsystem health", "Payload sequencer operations"], "correct": 1, "explanation": "The slide explicitly states that the Telecommand Processor System is responsible for distributing commands over the Mil1553 bus to different subsystems. While it also mentions other functions like real-time execution and payload sequencer operations, the primary function highlighted is command distribution.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_9.png"}, {"question": "Which of the following is NOT a feature of the Telecommand Processor System mentioned in the slide?", "options": ["Autonomy functions including Thermal autonomy", "Fault tolerant & diagnostics features", "Real time & stored command execution", "Secured Telecommand Link"], "correct": 3, "explanation": "The slide mentions autonomy functions, fault tolerance, and real-time command execution as features of the Telecommand Processor System. However, 'Secured Telecommand Link' is part of the course title (IN-SPACe Short Term Skill Development Course) and not a feature of the system itself.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_9.png"}, {"question": "What is the primary function of the Telecommand Distribution System?", "options": ["To receive command data from the decoder", "To generate various pulse widths from 16ms to 8Sec based on the command code", "To decode commands and transmit command pulses to the decoded line", "All of the above"], "correct": 3, "explanation": "The Telecommand Distribution System performs all the mentioned functions: receiving command data, generating pulse widths, and decoding and transmitting commands.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_10.png"}, {"question": "What is the duration range for the pulse widths generated by the Telecommand Distribution System?", "options": ["1ms to 16ms", "16ms to 8Sec", "8Sec to 16ms", "1 second to 1 minute"], "correct": 1, "explanation": "The system generates pulse widths ranging from 16 milliseconds (ms) up to 8 seconds (Sec) based on the command code.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_10.png"}, {"question": "Which of the following is NOT a reliability aspect mentioned in the slide content?", "options": ["Component selection", "Operating components in de-rated conditions", "Dual redundancy", "Local & Remote power selection provision"], "correct": 3, "explanation": "The slide content lists 'Structured design review process' as a reliability aspect, not 'Local & Remote power selection provision'.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_11.png"}, {"question": "What is the date mentioned in the slide content?", "options": ["23-02-2025", "23-02-2026", "23-03-2026", "23-04-2026"], "correct": 1, "explanation": "The slide content clearly states '23-02-2026' as the date.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_11.png"}, {"question": "Which security mechanism is met by the onboard segment that ensures information is not disclosed to unauthorized personnel?", "options": ["Authentication", "Confidentiality", "Data Integrity", "Accountability"], "correct": 1, "explanation": "Confidentiality is the security mechanism that ensures information is not available or disclosed to unauthorized personnel, and it is met by the onboard segment.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_16.png"}, {"question": "Which security mechanism is met by the ground segment that enables only approved operators to access the mission control system?", "options": ["Authentication", "Confidentiality", "Access Control", "Data Integrity"], "correct": 2, "explanation": "Access Control is the security mechanism that enables only approved operators to access the mission control system, and it is met by the ground segment.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_16.png"}, {"question": "What are the two services offered by the Security Protocol in the Secured Telecommand Link-IN-SPACe Short Term Skill Development Course?", "options": ["Secure Data Transfer Service and Security Management Service", "Data Encryption Service and Key Management Service", "Secure Communication Service and Threat Detection Service", "Authentication Service and Integrity Check Service"], "correct": 0, "explanation": "The slide explicitly mentions two services: Secure Data Transfer Service and Security Management Service. These are the correct services offered by the Security Protocol.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_17.png"}, {"question": "What is the maximum size of data that can be transferred in a single instance by the Secure Data Transfer Service?", "options": ["4 bytes", "1000 bytes", "1024 bytes", "No size limit"], "correct": 1, "explanation": "The slide states that the Secure Data Transfer Service can transfer data from ground to spacecraft with a minimum of 4 bytes to a maximum of 1000 bytes at an instance. Therefore, the maximum size is 1000 bytes.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_17.png"}, {"question": "What is the purpose of filler bytes in the Security Protocol Frame (SPF)?", "options": ["To encrypt the data", "To ensure the SPF is a multiple of 128 bits", "To increase the data transmission speed", "To authenticate the sender"], "correct": 1, "explanation": "Filler bytes are added to the SPF to make its size a multiple of 128 bits, which is necessary for proper segmentation into 128-bit ENC blocks.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_18.png"}, {"question": "What constitutes a Security Protocol Transmission Unit (SPTU)?", "options": ["A single Security Protocol Frame", "Encrypted ENC Blocks from multiple SPFs", "A Decryptor Status Report", "Unencrypted ENC Blocks"], "correct": 1, "explanation": "A SPTU is formed by encrypting the ENC Blocks derived from a single Security Protocol Frame. Therefore, it consists of encrypted ENC Blocks originating from one SPF.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_18.png"}, {"question": "What are the two main types of symmetric encryption ciphers?", "options": ["Stream Cipher and Asymmetric Cipher", "Block Cipher and Asymmetric Cipher", "Stream Cipher and Block Cipher", "Asymmetric Cipher and Hash Function"], "correct": 2, "explanation": "The slide explicitly mentions Stream Cipher and Block Cipher as the two types of symmetric encryption ciphers.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_20.png"}, {"question": "Which of the following is NOT a type of symmetric encryption cipher?", "options": ["Stream Cipher", "Block Cipher", "Asymmetric Cipher", "Hash Function"], "correct": 2, "explanation": "Asymmetric Cipher is not a type of symmetric encryption cipher. Symmetric encryption uses the same key for encryption and decryption, while asymmetric encryption uses a pair of keys.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_20.png"}, {"question": "What is the key size of the Advanced Encryption Standard (AES) mentioned in the slide?", "options": ["128 bits", "192 bits", "256 bits", "512 bits"], "correct": 0, "explanation": "The slide explicitly states that the Advanced Encryption Standard (AES) is a 128-bit block cipher.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_21.png"}, {"question": "Which of the following is the reference book mentioned in the slide?", "options": ["Cryptography & Network Security, Principles and Practice by William Stallings", "Cryptography and Network Security by William Stallings", "Applied Cryptography by Bruce Schneier", "Network Security Essentials by William Stallings"], "correct": 0, "explanation": "The slide directly references 'Cryptography & Network security ,Principles and practice by William Stallings' as the reference material.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_21.png"}, {"question": "Which of the following is NOT a block cipher operating mode mentioned in the slide?", "options": ["Cipher Block Chaining Mode", "Output Feedback Mode", "Counter Mode", "Cipher Feedback Mode"], "correct": 0, "explanation": "The slide explicitly lists Cipher Block Chaining Mode, Output Feedback Mode, and Counter Mode as block cipher operating modes. Cipher Feedback Mode is not mentioned.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_22.png"}, {"question": "What is the reference text for the block cipher operating modes discussed in the slide?", "options": ["Cryptography & Network Security, Principles and Practice by William Stallings", "Cryptography: Theory, Algorithms, and Practice by Alice and Bob", "Applied Cryptography by Bruce Schneier", "Network Security Essentials by William Stallings"], "correct": 0, "explanation": "The slide explicitly states the reference as 'Cryptography & Network security, Principles and practice by William Stallings'.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_22.png"}, {"question": "According to the quote, what does the author suggest about taking shortcuts?", "options": ["Shortcuts should be avoided as they are risky", "Shortcuts are only for gamblers", "Shortcuts can be taken with accurate foresight", "Shortcuts are irrelevant to space missions"], "correct": 2, "explanation": "The quote emphasizes that with maturity and accurate foresight (like a prophet), one can take shortcuts, implying strategic and deliberate actions.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_28.png"}, {"question": "What is the main idea of the quote in the context of India\u2019s Space Mission 2.0?", "options": ["Emphasizing the importance of walking step-by-step", "Highlighting the need for skill development", "Stressing the importance of visionary and accurate decision-making", "Focusing on the risks of taking shortcuts"], "correct": 2, "explanation": "The quote underscores the importance of having a clear and accurate vision of consequences, akin to a prophet, which aligns with the strategic planning required for a complex mission like India\u2019s Space Mission 2.0.", "image": "C:\\Users\\Kriteesh Parashar\\Downloads\\inspace-cybersecurity\\slide_images\\l7\\slide_28.png"}];
+    let currentIdx = 0;
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    const qText = document.getElementById('q-text');
+    const qImg = document.getElementById('q-img');
+    const optionsContainer = document.getElementById('options-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const ticker = document.getElementById('ticker');
+    const explanation = document.getElementById('explanation');
+
+    function loadQuestion() {
+        const q = quizData[currentIdx];
+        qText.innerText = q.question;
+        
+        if(q.image) {
+            qImg.src = q.image;
+            qImg.classList.remove('hidden');
+        } else {
+            qImg.classList.add('hidden');
+        }
+
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i);
+            optionsContainer.appendChild(btn);
+        });
+
+        explanation.classList.add('hidden');
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        updateTicker();
+    }
+
+    let selectedIdx = null;
+    function selectOption(idx) {
+        if (nextBtn.disabled === false) return; // Lock after submit
+        selectedIdx = idx;
+        submitBtn.disabled = false;
+        
+        // Visual feedback for selection
+        Array.from(optionsContainer.children).forEach((btn, i) => {
+            btn.style.background = (i === idx) ? '#e9ecef' : 'white';
+        });
+    }
+
+    submitBtn.onclick = () => {
+        const q = quizData[currentIdx];
+        const buttons = optionsContainer.children;
+        
+        // Requirement 5: Highlight correct in green
+        buttons[q.correct].classList.add('correct');
+        
+        if (selectedIdx === q.correct) {
+            correctCount++;
+        }
+        
+        answeredCount++;
+        explanation.innerText = "Explanation: " + q.explanation;
+        explanation.classList.remove('hidden');
+        
+        submitBtn.disabled = true;
+        nextBtn.disabled = false;
+        
+        if (currentIdx === quizData.length - 1) {
+            nextBtn.innerText = "Done";
+        }
+        updateTicker();
+    };
+
+    nextBtn.onclick = () => {
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            showFinal();
+        }
+    };
+
+    function updateTicker() {
+        ticker.innerText = `Correct: ${correctCount} / Answered: ${answeredCount} / Total: ${quizData.length}`;
+    }
+
+    function showFinal() {
+        document.getElementById('quiz-container').classList.add('hidden');
+        const final = document.getElementById('final-screen');
+        final.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `Your Score: ${correctCount} / ${quizData.length}`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
+    
