@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile PPTX Quiz</title>
+    <style>
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; 
+            margin: 0;
+            background: #f0f2f5; 
+            color: #1c1e21;
+        }
+
+        #quiz-container, #final-screen { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 500px; /* Limits width on desktop, but 100% on mobile */
+            margin-top: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+        }
+
+        h3 { font-size: 1.2rem; line-height: 1.4; margin-top: 0; }
+
+        .hidden { display: none !important; }
+
+        /* Image Styling */
+        .img-wrapper {
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
+            border: 1px solid #ddd;
+        }
+
+        /* Option Buttons - Large for Thumb Tapping */
+        .option-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 15px; /* Larger padding for mobile */
+            text-align: left; 
+            cursor: pointer; 
+            border: 2px solid #e4e6eb; 
+            border-radius: 8px; 
+            background: #f7f8fa;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .option-btn:active { transform: scale(0.98); }
+
+        .selected { background-color: #e7f3ff; border-color: #1877f2; }
+        
+        .correct { 
+            background-color: #e7f3ef !important; 
+            border-color: #28a745 !important; 
+            color: #155724;
+            font-weight: bold;
+        }
+
+        /* Control Buttons */
+        .controls { 
+            margin-top: 25px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        button:not(.option-btn) {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #submit-btn { background: #1877f2; color: white; }
+        #submit-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        #next-btn { background: #42b72a; color: white; }
+        #next-btn:disabled { background: #ccd0d5; color: #8a8d91; }
+
+        /* Ticker & Explanation */
+        #ticker { 
+            margin-top: 25px; 
+            font-size: 0.9rem; 
+            text-align: center;
+            color: #65676b;
+            border-top: 1px solid #ebedf0; 
+            padding-top: 15px; 
+        }
+
+        #explanation { 
+            margin-top: 15px; 
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-left: 4px solid #ffc107;
+        }
+
+        #final-screen { text-align: center; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="question-box">
+        <h3 id="q-text"></h3>
+        <img id="q-img" src="" class="hidden">
+        <div id="options-container"></div>
+    </div>
+    
+    <div class="controls">
+        <button id="submit-btn" disabled>Submit</button>
+        <button id="next-btn" disabled>Next</button>
+    </div>
+
+    <div id="ticker"></div>
+    <div id="explanation" class="hidden"></div>
+</div>
+
+<div id="final-screen" class="hidden" style="text-align:center;">
+    <h1>Quiz Complete!</h1>
+    <h2 id="final-score"></h2>
+    <p>Thank you for participating.</p>
+</div>
+
+<script>
+    const quizData = [
+  {
+    "id": "s4q1",
+    "question": "Which of the following is NOT a primary segment of a Space Systems Architecture?",
+    "options": ["Ground Segment", "Space Segment", "Atmospheric Segment", "Communication Links"],
+    "correct": 2,
+    "explanation": "According to the Space Systems Architecture overview, the primary segments consist of the Ground Segment, Space Segment, and the Communication Links connecting them. [cite: 11, 24]"
+  },
+  {
+    "id": "s4q2",
+    "question": "In the spacecraft bus architecture, which subsystem is responsible for maintaining stable temperatures?",
+    "options": ["AOCS", "Thermal Control System", "Power Conditioners", "OBC"],
+    "correct": 1,
+    "explanation": "The Thermal Control System is a specific part of the spacecraft bus designed to manage the thermal environment of the vehicle. [cite: 35, 57]"
+  },
+  {
+    "id": "s6q1",
+    "question": "Which component of a ground station is responsible for encoding digital data for transmission (modulation)?",
+    "options": ["Transceiver", "Antenna System", "Modem", "Tracking Control"],
+    "correct": 2,
+    "explanation": "The Modem is defined as the component that encodes digital data for transmission through modulation and decodes it upon reception. [cite: 97]"
+  },
+  {
+    "id": "s6q2",
+    "question": "What is the primary difference between passive and active ground stations?",
+    "options": ["Passive stations use mobile units", "Active stations only receive data", "Passive stations only receive data, active both transmit and receive", "Active stations are exclusively shipborne"],
+    "correct": 2,
+    "explanation": "Passive stations are limited to receiving data, whereas active stations have the capability to both transmit and receive signals. [cite: 101]"
+  },
+  {
+    "id": "s7q1",
+    "question": "During signal reception at a ground station, what is the first component to amplify the weak downlink signal?",
+    "options": ["High Power Amplifier (HPA)", "Down converter", "Low Noise Amplifier (LNA)", "Base band Equipment"],
+    "correct": 2,
+    "explanation": "Earth station antennas receive weak downlink signals which are first amplified by the Low Noise Amplifier (LNA) before further processing. [cite: 129]"
+  },
+  {
+    "id": "s7q2",
+    "question": "At what frequency is the modulated signal typically processed before being up-converted for uplink?",
+    "options": ["70 MHz", "2.4 GHz", "8.1 GHz", "100 MHz"],
+    "correct": 0,
+    "explanation": "Modulated signals are typically processed at 70 MHz before the Up converter shifts them to a higher frequency for transmission. [cite: 127, 129]"
+  },
+  {
+    "id": "s8q1",
+    "question": "What is the primary function of a Mission Control Center (MCC)?",
+    "options": ["Building the satellite structure", "Central hub for monitoring and commanding the spacecraft", "Launching the rocket", "Only archiving old mission data"],
+    "correct": 1,
+    "explanation": "The MCC is the central hub where flight controllers monitor health and safety, send instruction stacks, and resolve anomalies. [cite: 137, 138, 141]"
+  },
+  {
+    "id": "s10q1",
+    "question": "Which ISRO facility is primarily responsible for LEO, Interplanetary missions, and Flight Dynamics Operations?",
+    "options": ["Master Control Facility (MCF)", "NRSC", "ISTRAC", "URSC"],
+    "correct": 2,
+    "explanation": "ISTRAC handles satellite health monitoring, control of LEO and Interplanetary missions, and Flight Dynamics Operations. [cite: 220]"
+  },
+  {
+    "id": "s12q1",
+    "question": "What does the 'TTC' link stand for in satellite communications?",
+    "options": ["Total Telecommunication Control", "Telemetry, Tracking and Command", "Thermal Transponder Codec", "Terrestrial Tracking Center"],
+    "correct": 1,
+    "explanation": "Spacecraft are controlled remotely using two-way wireless links known as Telemetry, Tracking and Command (TTC). [cite: 241]"
+  },
+  {
+    "id": "s14q1",
+    "question": "Which frequency band is most resistant to rain and fog, making it suitable for GPS and mobile satellite services?",
+    "options": ["Ka Band", "Ku Band", "L Band", "X Band"],
+    "correct": 2,
+    "explanation": "L Band (1-2 GHz) is noted for its high resistance to rain and fog and its ability to penetrate obstacles well. [cite: 322]"
+  },
+  {
+    "id": "s14q2",
+    "question": "Which band is primarily used for Direct-to-Home (DTH) and broadband internet but is sensitive to 'rain fade'?",
+    "options": ["S Band", "Ku Band", "VHF", "UHF"],
+    "correct": 1,
+    "explanation": "Ku Band (12-18 GHz) provides high bandwidth for large data like DTH but is sensitive to heavy rain. [cite: 322]"
+  },
+  {
+    "id": "s17q1",
+    "question": "What entity in a spacecraft contains the 'brain' (On-board Computer) and power systems?",
+    "options": ["Payload System", "Bus System", "Ground Segment", "Launch Vehicle"],
+    "correct": 1,
+    "explanation": "The Bus System is an ensemble of mainframe subsystems like the OBC, power generation, and propulsion that maintain the operational environment. [cite: 352, 353, 453]"
+  },
+  {
+    "id": "s21q1",
+    "question": "At what altitude does a satellite match the Earth's rotation in a Geostationary Earth Orbit (GEO)?",
+    "options": ["2,000 km", "10,000 km", "35,786 km", "160 km"],
+    "correct": 2,
+    "explanation": "GEO is located at exactly 35,786 km, allowing satellites to remain stationary over a single point on Earth. [cite: 471]"
+  },
+  {
+    "id": "s22q1",
+    "question": "A spacecraft weighing less than 10 kg is classified as a:",
+    "options": ["Micro spacecraft", "Nano spacecraft", "Mini spacecraft", "Small spacecraft"],
+    "correct": 1,
+    "explanation": "Nano spacecrafts are defined as those weighing less than 10 kg. [cite: 496, 501]"
+  },
+  {
+    "id": "s30q1",
+    "question": "In the Chandrayaan-3 mission, what is the main function of the Propulsion Module (PM)?",
+    "options": ["To land on the lunar surface", "To deploy the Rover", "To carry the Lander to a 100 km circular lunar orbit", "To carry out surface experiments"],
+    "correct": 2,
+    "explanation": "The main function of the PM is to carry the Lander Module from injection until reaching the final 100 km circular polar lunar orbit. [cite: 653]"
+  },
+  {
+    "id": "s35q1",
+    "question": "On what date did the Chandrayaan-2 Orbiter formally welcome the Chandrayaan-3 Lander Module?",
+    "options": ["August 15, 2023", "August 21, 2023", "August 30, 2023", "July 14, 2023"],
+    "correct": 1,
+    "explanation": "The document notes that the 'Welcome, buddy!' communication was established on 21st August 2023. [cite: 809, 813]"
+  }
+]
+    
+    let currentIdx = 0;
+    let correctCount = 0;
+    let answeredCount = 0;
+
+    const qText = document.getElementById('q-text');
+    const qImg = document.getElementById('q-img');
+    const optionsContainer = document.getElementById('options-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const ticker = document.getElementById('ticker');
+    const explanation = document.getElementById('explanation');
+
+    function loadQuestion() {
+        const q = quizData[currentIdx];
+        qText.innerText = q.question;
+        
+        if(q.image) {
+            qImg.src = q.image;
+            qImg.classList.remove('hidden');
+        } else {
+            qImg.classList.add('hidden');
+        }
+
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i);
+            optionsContainer.appendChild(btn);
+        });
+
+        explanation.classList.add('hidden');
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        updateTicker();
+    }
+
+    let selectedIdx = null;
+    function selectOption(idx) {
+        if (nextBtn.disabled === false) return; // Lock after submit
+        selectedIdx = idx;
+        submitBtn.disabled = false;
+        
+        // Visual feedback for selection
+        Array.from(optionsContainer.children).forEach((btn, i) => {
+            btn.style.background = (i === idx) ? '#e9ecef' : 'white';
+        });
+    }
+
+    submitBtn.onclick = () => {
+        const q = quizData[currentIdx];
+        const buttons = optionsContainer.children;
+        
+        // Requirement 5: Highlight correct in green
+        buttons[q.correct].classList.add('correct');
+        
+        if (selectedIdx === q.correct) {
+            correctCount++;
+        }
+        
+        answeredCount++;
+        explanation.innerText = "Explanation: " + q.explanation;
+        explanation.classList.remove('hidden');
+        
+        submitBtn.disabled = true;
+        nextBtn.disabled = false;
+        
+        if (currentIdx === quizData.length - 1) {
+            nextBtn.innerText = "Done";
+        }
+        updateTicker();
+    };
+
+    nextBtn.onclick = () => {
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            showFinal();
+        }
+    };
+
+    function updateTicker() {
+        ticker.innerText = `Correct: ${correctCount} / Answered: ${answeredCount} / Total: ${quizData.length}`;
+    }
+
+    function showFinal() {
+        document.getElementById('quiz-container').classList.add('hidden');
+        const final = document.getElementById('final-screen');
+        final.classList.remove('hidden');
+        document.getElementById('final-score').innerText = `Your Score: ${correctCount} / ${quizData.length}`;
+    }
+
+    loadQuestion();
+</script>
+</body>
+</html>
+    
